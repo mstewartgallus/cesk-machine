@@ -23,11 +23,6 @@ public final record PureEnv(Map<Integer, Val<?>> map) implements Env {
     }
 
     @Override
-    public Addr<?> get(int variable) {
-        throw new RuntimeException("unimplemented");
-    }
-
-    @Override
     public Env copy() {
         return this;
     }

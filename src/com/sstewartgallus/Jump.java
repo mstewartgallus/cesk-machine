@@ -1,5 +1,6 @@
 package com.sstewartgallus;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -17,8 +18,8 @@ public interface Jump<A> {
         return new NeedJump<>(body, needVar, next);
     }
 
-    static <A> Jump<F<A>> exec(SetTag<A> aTag, int needVar) {
-        return new ExecJump<>(aTag, needVar);
+    static <A> Jump<F<A>> once(SetTag<A> aTag, int needVar) {
+        return new OnceJump<>(aTag, needVar);
     }
 
     static <A, B> Jump<B> to(Jump<F<A>> body, int variable, Jump<B> next) {
@@ -73,7 +74,7 @@ record ToJump<A, B>(Jump<F<A>> body, int variable, Jump<B> next) implements Jump
     }
 }
 
-record ExecJump<A>(SetTag<A> aTag, int needVar) implements Jump<F<A>> {
+record OnceJump<A>(SetTag<A> aTag, int needVar) implements Jump<F<A>> {
     @Override
     public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<F<A>, R> kont) {
         var toKont = (Kont.ToKont<?, A, R>) kont;
@@ -81,14 +82,34 @@ record ExecJump<A>(SetTag<A> aTag, int needVar) implements Jump<F<A>> {
     }
 
     private <R, B> Frame<R> stepToKont(Frame<R> frame, Env env, Store store, Kont.ToKont<B, A, R> toKont) {
-        throw new RuntimeException("unimplemented");
+        var addr = env.need(aTag, needVar);
+        var thunk = store.getThunk(addr);
+
+        if (thunk instanceof Thunk.Forced<A> forced) {
+            var val = forced.value();
+            var e = toKont.env();
+            e = e.put(toKont.variable(), val);
+            store = store.updateAddresses(toKont.addresses(), val);
+            return frame.update(toKont.next(), e, store, toKont.kont());
+        }
+        var unforced = (Thunk.Unforced<A>) thunk;
+
+        var addresses = toKont.addresses();
+
+        // fixme... dumb
+        addresses = new ArrayList<>(addresses);
+        addresses.add(addr);
+
+        return frame.update(unforced.body(), unforced.env(), store, new Kont.ToKont<>(addresses, toKont.variable(), toKont.env(), toKont.next(), toKont.kont()));
     }
 }
 
 record NeedJump<A, B>(Jump<F<A>> body, int variable, Jump<B> next) implements Jump<B> {
     @Override
     public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<B, R> kont) {
-        throw new RuntimeException("unimplemented");
+        store = store.allocate(new Thunk.Unforced<>(env.copy(), body));
+        env = env.put(variable, store.latest());
+        return frame.update(next, env, store, kont);
     }
 }
 

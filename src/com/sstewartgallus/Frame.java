@@ -10,12 +10,13 @@ public interface Frame<R> {
         var program = v.to(aTag, AlgTag.VoidTag.VOID_TAG, start, (Function<Instr<A>, Jump<Void>>) Jump::halt);
 
         var layout = v.layout();
+        var needs = v.needs();
 
         var kont = new Kont.AbsurdKont<A>();
         if (pure) {
             return new PureFrame<>(program, Env.pure(layout), Store.pure(), kont);
         }
-        return new ImpureFrame<>(program, Env.impure(layout), Store.impure(), kont);
+        return new ImpureFrame<>(program, Env.impure(layout, needs), Store.impure(), kont);
     }
 
     Frame<R> step();

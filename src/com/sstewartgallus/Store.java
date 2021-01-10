@@ -11,11 +11,11 @@ public interface Store {
         return new ImpureStore();
     }
 
-    <A> Store allocate(Val<A> h);
+    <A> Store allocate(Thunk.Unforced<A> thunk);
 
     <A> Addr<A> latest();
 
-    <A> Val<A> get(Addr<A> addr);
-
     <A> Store updateAddresses(List<Addr<A>> addresses, Val<A> h);
+
+    <A> Thunk<A> getThunk(Addr<A> addr);
 }

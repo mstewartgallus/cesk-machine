@@ -5,13 +5,16 @@ import java.util.Objects;
 
 public final class ImpureEnv implements Env {
     private final Val<?>[] map;
+    private final Addr<?>[] addrs;
 
-    public ImpureEnv(int size) {
-        this.map = new Val[size];
+    public ImpureEnv(int values, int needs) {
+        this.map = new Val[values];
+        this.addrs = new Addr[needs];
     }
 
-    private ImpureEnv(Val<?>[] src) {
-        this.map = src.clone();
+    private ImpureEnv(Val<?>[] map, Addr<?>[] addrs) {
+        this.map = map.clone();
+        this.addrs = addrs.clone();
     }
 
     @Override
@@ -29,23 +32,20 @@ public final class ImpureEnv implements Env {
 
     @Override
     public <A> Env put(int variable, Addr<A> addr) {
-        throw new RuntimeException("unimplemented");
-    }
-
-
-    @Override
-    public Addr<?> get(int variable) {
-        throw new RuntimeException("unimplemented");
-    }
-
-    @Override
-    public Env copy() {
-        return new ImpureEnv(map);
+        Objects.requireNonNull(addr);
+        addrs[variable] = addr;
+        return this;
     }
 
     @Override
     public <A> Addr<A> need(SetTag<A> aTag, int needVar) {
-        throw new RuntimeException("unimplemented");
+        // fixme.. check cast
+        return (Addr) addrs[needVar];
+    }
+
+    @Override
+    public Env copy() {
+        return new ImpureEnv(map, addrs);
     }
 
     @Override

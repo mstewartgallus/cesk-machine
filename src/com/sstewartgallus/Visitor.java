@@ -43,7 +43,7 @@ public final class Visitor {
 
     <A, B> Jump<B> need(SetTag<A> aTag, AlgTag<B> bTag, Jump<F<A>> body, Function<Jump<F<A>>, Jump<B>> next) {
         var v = needVar(aTag);
-        return Jump.need(aTag, bTag, body, v, next.apply(Jump.exec(aTag, v)));
+        return Jump.need(aTag, bTag, body, v, next.apply(Jump.once(aTag, v)));
     }
 
     <A> Jump<F<A>> ret(SetTag<A> aTag, Instr<A> value) {
@@ -69,5 +69,9 @@ public final class Visitor {
         var len = vars.size();
         vars.add(aTag);
         return len;
+    }
+
+    public int needs() {
+        return needVars.size();
     }
 }

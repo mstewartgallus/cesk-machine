@@ -7,17 +7,16 @@ public interface Env {
         return new PureEnv(Map.of());
     }
 
-    static Env impure(int size) {
-        return new ImpureEnv(size);
+    static Env impure(int values, int needs) {
+        return new ImpureEnv(values, needs);
     }
 
     // fixme... put tags here...
     <A> Env put(int variable, Val<A> val);
+
     Val<?> getVal(int variable);
 
     <A> Env put(int variable, Addr<A> addr);
-
-    Addr<?> get(int variable);
 
     Env copy();
 

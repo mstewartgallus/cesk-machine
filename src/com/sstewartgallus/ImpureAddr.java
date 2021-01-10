@@ -1,4 +1,4 @@
 package com.sstewartgallus;
 
-public record ImpureAddr<A>(Val<A> value) implements Addr<A> {
+public record ImpureAddr<A>(Thunk.Unforced<A> thunk) implements Addr<A> {
 }

@@ -4,10 +4,12 @@ import java.util.function.Function;
 
 public class Main {
     static private final Function<Visitor, Jump<F<Z>>> SAMPLE = v ->
-            v.pass(v.lam(x -> v.ret(v.add(v.z(4), x))), v.z(5));
+            v.pass(SetTag.ZTag.Z_TAG, new AlgTag.FTag<>(SetTag.ZTag.Z_TAG),
+                    v.lam(SetTag.ZTag.Z_TAG, new AlgTag.FTag<>(SetTag.ZTag.Z_TAG), x ->
+                    v.ret(SetTag.ZTag.Z_TAG, v.add(v.z(4), x))), v.z(5));
 
     public static void main(String[] args) {
-        var frame = Frame.inject(SAMPLE, true);
+        var frame = Frame.inject(SetTag.ZTag.Z_TAG, SAMPLE, true);
         Val<Z> haltVal;
         var step = 0;
         for (; ; ++step) {

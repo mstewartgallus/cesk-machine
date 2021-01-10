@@ -4,10 +4,10 @@ import java.util.function.Function;
 
 public interface Frame<R> {
     // fixme.. probably best to create an explicit layout structure
-    static <A> Frame<A> inject(Function<Visitor, Jump<F<A>>> f, boolean pure) {
+    static <A> Frame<A> inject(SetTag<A> aTag, Function<Visitor, Jump<F<A>>> f, boolean pure) {
         var v = new Visitor();
         var start = f.apply(v);
-        var program = v.to(start, (Function<Instr<A>, Jump<Void>>) Jump::halt);
+        var program = v.to(aTag, AlgTag.VoidTag.VOID_TAG, start, (Function<Instr<A>, Jump<Void>>) Jump::halt);
 
         var layout = v.layout();
 

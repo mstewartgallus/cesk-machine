@@ -31,8 +31,6 @@ public final class ImpureStore implements Store {
 
     @Override
     public String toString() {
-        return "ImpureStore{" +
-                "theLatest=" + theLatest +
-                '}';
+        return "{}";
     }
 }

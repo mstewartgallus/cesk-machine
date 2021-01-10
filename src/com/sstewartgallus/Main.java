@@ -9,7 +9,7 @@ public class Main {
                     v.ret(SetTag.ZTag.Z_TAG, v.add(v.z(4), x))), v.z(5));
 
     public static void main(String[] args) {
-        var frame = Frame.inject(SetTag.ZTag.Z_TAG, SAMPLE, true);
+        var frame = Frame.inject(SetTag.ZTag.Z_TAG, SAMPLE, false);
         Val<Z> haltVal;
         var step = 0;
         for (; ; ++step) {

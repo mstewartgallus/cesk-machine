@@ -50,8 +50,6 @@ public final class ImpureEnv implements Env {
 
     @Override
     public String toString() {
-        return "ImpureEnv{" +
-                "map=" + Arrays.toString(map) +
-                '}';
+        return Arrays.toString(map);
     }
 }

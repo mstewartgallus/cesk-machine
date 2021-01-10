@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
-public final record PureEnv(Map<Integer, Val<?>> map) implements Env {
+public record PureEnv(Map<Integer, Val<?>> map) implements Env {
     @Override
     public <A> Env put(int variable, Val<A> val) {
         var newmap = new TreeMap<>(map);
@@ -30,5 +30,10 @@ public final record PureEnv(Map<Integer, Val<?>> map) implements Env {
     @Override
     public <A> Addr<A> need(SetTag<A> aTag, int needVar) {
         throw new RuntimeException("unimplemented");
+    }
+
+    @Override
+    public String toString() {
+        return map.toString();
     }
 }

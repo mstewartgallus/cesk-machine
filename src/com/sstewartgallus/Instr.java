@@ -7,6 +7,11 @@ enum BangInstr implements Instr<Unit> {
     public Val<Unit> eval(Env env, Store store) {
         return Val.BangVal.BANG_VAL;
     }
+
+    @Override
+    public String toString() {
+        return "!";
+    }
 }
 
 public interface Instr<A> {
@@ -38,6 +43,11 @@ record LoadInstr<A>(int variable) implements Instr<A> {
     public Val<A> eval(Env env, Store store) {
         return (Val<A>) env.getVal(variable);
     }
+
+    @Override
+    public String toString() {
+        return "#" + variable;
+    }
 }
 
 record ThunkInstr<A>(Jump<A> jump) implements Instr<U<A>> {
@@ -45,12 +55,22 @@ record ThunkInstr<A>(Jump<A> jump) implements Instr<U<A>> {
     public Val<U<A>> eval(Env env, Store store) {
         return new Val.ThunkVal<>(env.copy(), jump);
     }
+
+    @Override
+    public String toString() {
+        return "(thunk " + jump + ")";
+    }
 }
 
 record IntegerInstr(int value) implements Instr<Z> {
     @Override
     public Val<Z> eval(Env env, Store store) {
         return new Val.ZVal(value);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
     }
 }
 
@@ -60,5 +80,10 @@ record AddInstr(Instr<Z> left, Instr<Z> right) implements Instr<Z> {
         var l = (Val.ZVal) left.eval(env, store);
         var r = (Val.ZVal) right.eval(env, store);
         return new Val.ZVal(l.value() + r.value());
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left + " + " + right + ")";
     }
 }

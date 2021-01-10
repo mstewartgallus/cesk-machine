@@ -1,6 +1,9 @@
 package com.sstewartgallus;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.WeakHashMap;
 
 public record PureStore(PureAddr<?> theLatest, Map<PureAddr<?>, Thunk<?>> map) implements Store {
     public <A> PureStore allocate(Thunk.Unforced<A> thunk) {
@@ -15,7 +18,7 @@ public record PureStore(PureAddr<?> theLatest, Map<PureAddr<?>, Thunk<?>> map) i
     }
 
     public <A> Addr<A> latest() {
-        return Objects.requireNonNull((Addr)theLatest);
+        return Objects.requireNonNull((Addr) theLatest);
     }
 
     @Override
@@ -29,5 +32,10 @@ public record PureStore(PureAddr<?> theLatest, Map<PureAddr<?>, Thunk<?>> map) i
     @Override
     public <A> Thunk<A> getThunk(Addr<A> addr) {
         throw new RuntimeException("unimplemented");
+    }
+
+    @Override
+    public String toString() {
+        return map.toString();
     }
 }

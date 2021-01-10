@@ -55,6 +55,11 @@ record HaltJump<A>(Instr<A> value) implements Jump<Void> {
     public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<Void, R> kont) {
         throw new RuntimeException("halt!");
     }
+
+    @Override
+    public String toString() {
+        return "(halt " + value + ")";
+    }
 }
 
 record ForceJump<A>(Instr<U<A>> thunk) implements Jump<A> {
@@ -64,6 +69,11 @@ record ForceJump<A>(Instr<U<A>> thunk) implements Jump<A> {
         var newenv = thunkval.env().copy();
         return frame.update(thunkval.jump(), newenv, store, kont);
     }
+
+    @Override
+    public String toString() {
+        return "(force " + thunk + ")";
+    }
 }
 
 record ToJump<A, B>(Jump<F<A>> body, int variable, Jump<B> next) implements Jump<B> {
@@ -71,6 +81,11 @@ record ToJump<A, B>(Jump<F<A>> body, int variable, Jump<B> next) implements Jump
     public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<B, R> kont) {
         var copy = env.copy();
         return frame.update(body, env, store, new Kont.ToKont<>(Collections.emptyList(), variable, copy, next, kont));
+    }
+
+    @Override
+    public String toString() {
+        return "(" + body + " to #" + variable + ". " + next + ")";
     }
 }
 
@@ -102,6 +117,11 @@ record OnceJump<A>(SetTag<A> aTag, int needVar) implements Jump<F<A>> {
 
         return frame.update(unforced.body(), unforced.env(), store, new Kont.ToKont<>(addresses, toKont.variable(), toKont.env(), toKont.next(), toKont.kont()));
     }
+
+    @Override
+    public String toString() {
+        return "p" + needVar;
+    }
 }
 
 record NeedJump<A, B>(Jump<F<A>> body, int variable, Jump<B> next) implements Jump<B> {
@@ -110,6 +130,11 @@ record NeedJump<A, B>(Jump<F<A>> body, int variable, Jump<B> next) implements Ju
         store = store.allocate(new Thunk.Unforced<>(env.copy(), body));
         env = env.put(variable, store.latest());
         return frame.update(next, env, store, kont);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + body + " need p" + variable + ". " + next + ")";
     }
 }
 
@@ -127,6 +152,11 @@ record ReturnJump<A>(Instr<A> value) implements Jump<F<A>> {
         store = store.updateAddresses(toKont.addresses(), h);
         return frame.update(toKont.next(), e, store, toKont.kont());
     }
+
+    @Override
+    public String toString() {
+        return "(return " + value + ")";
+    }
 }
 
 record LamJump<A, B>(int variable, Jump<B> next) implements Jump<Fn<A, B>> {
@@ -138,6 +168,11 @@ record LamJump<A, B>(int variable, Jump<B> next) implements Jump<Fn<A, B>> {
         env = env.put(variable, h);
         return frame.update(next, env, store, t);
     }
+
+    @Override
+    public String toString() {
+        return "(lam #" + variable + ". " + next + ")";
+    }
 }
 
 record PassJump<A, B>(Jump<Fn<A, B>> fn, Instr<A> x) implements Jump<B> {
@@ -145,5 +180,9 @@ record PassJump<A, B>(Jump<Fn<A, B>> fn, Instr<A> x) implements Jump<B> {
     public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<B, R> kont) {
         var xval = x.eval(env, store);
         return frame.update(fn, env, store, new Kont.PassKont<>(xval, kont));
+    }
+    @Override
+    public String toString() {
+        return "(" + fn + " " + x + ")";
     }
 }

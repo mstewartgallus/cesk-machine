@@ -21,12 +21,18 @@ public final class ImpureStore implements Store {
         if (addresses.isEmpty()) {
             return this;
         }
-        throw new RuntimeException("unimplemented");
+        var forced = new Thunk.Forced<>(value);
+        for (var addr : addresses) {
+            var impureAddr = (ImpureAddr<A>)addr;
+            impureAddr.thunk = forced;
+        }
+        return this;
     }
 
     @Override
     public <A> Thunk<A> getThunk(Addr<A> addr) {
-        throw new RuntimeException("unimplemented");
+        var impureAddr = (ImpureAddr<A>)addr;
+        return impureAddr.thunk;
     }
 
     @Override

@@ -11,11 +11,6 @@ public final class Visitor {
 
     // fixme... consider removing some abstraction from builder
 
-    // fixme.. create a stack layout object
-    int layout() {
-        return vars.size();
-    }
-
     Instr<Unit> bang() {
         return Instr.bang();
     }
@@ -66,9 +61,13 @@ public final class Visitor {
     }
 
     private <A> int needVar(SetTag<A> aTag) {
-        var len = vars.size();
-        vars.add(aTag);
+        var len = needVars.size();
+        needVars.add(aTag);
         return len;
+    }
+
+    public int layout() {
+        return vars.size();
     }
 
     public int needs() {

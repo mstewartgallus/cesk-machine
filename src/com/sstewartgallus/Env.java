@@ -20,4 +20,6 @@ public interface Env {
     Addr<?> get(int variable);
 
     Env copy();
+
+    <A> Addr<A> need(SetTag<A> aTag, int needVar);
 }

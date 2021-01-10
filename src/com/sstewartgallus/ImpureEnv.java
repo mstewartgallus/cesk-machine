@@ -44,6 +44,11 @@ public final class ImpureEnv implements Env {
     }
 
     @Override
+    public <A> Addr<A> need(SetTag<A> aTag, int needVar) {
+        throw new RuntimeException("unimplemented");
+    }
+
+    @Override
     public String toString() {
         return "ImpureEnv{" +
                 "map=" + Arrays.toString(map) +

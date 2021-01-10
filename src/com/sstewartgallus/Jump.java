@@ -1,14 +1,24 @@
 package com.sstewartgallus;
 
+import java.util.Collections;
 import java.util.Objects;
 
 public interface Jump<A> {
+
     static <A> Jump<Void> halt(Instr<A> value) {
         return new HaltJump<>(value);
     }
 
     static <A> Jump<A> force(Instr<U<A>> thunk) {
         return new ForceJump<>(thunk);
+    }
+
+    static <A, B> Jump<B> need(SetTag<A> aTag, AlgTag<B> bTag, Jump<F<A>> body, int needVar, Jump<B> next) {
+        return new NeedJump<>(body, needVar, next);
+    }
+
+    static <A> Jump<F<A>> exec(SetTag<A> aTag, int needVar) {
+        return new ExecJump<>(aTag, needVar);
     }
 
     static <A, B> Jump<B> to(Jump<F<A>> body, int variable, Jump<B> next) {
@@ -59,7 +69,26 @@ record ToJump<A, B>(Jump<F<A>> body, int variable, Jump<B> next) implements Jump
     @Override
     public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<B, R> kont) {
         var copy = env.copy();
-        return frame.update(body, env, store, new Kont.ToKont<>(variable, copy, next, kont));
+        return frame.update(body, env, store, new Kont.ToKont<>(Collections.emptyList(), variable, copy, next, kont));
+    }
+}
+
+record ExecJump<A>(SetTag<A> aTag, int needVar) implements Jump<F<A>> {
+    @Override
+    public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<F<A>, R> kont) {
+        var toKont = (Kont.ToKont<?, A, R>) kont;
+        return stepToKont(frame, env, store, toKont);
+    }
+
+    private <R, B> Frame<R> stepToKont(Frame<R> frame, Env env, Store store, Kont.ToKont<B, A, R> toKont) {
+        throw new RuntimeException("unimplemented");
+    }
+}
+
+record NeedJump<A, B>(Jump<F<A>> body, int variable, Jump<B> next) implements Jump<B> {
+    @Override
+    public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<B, R> kont) {
+        throw new RuntimeException("unimplemented");
     }
 }
 
@@ -71,9 +100,10 @@ record ReturnJump<A>(Instr<A> value) implements Jump<F<A>> {
     }
 
     private <B, R> Frame<R> stepToKont(Frame<R> frame, Env env, Store store, Kont.ToKont<B, A, R> toKont) {
-        Val<A> h = value.eval(env, store);
+        var h = value.eval(env, store);
         var e = toKont.env();
         e = e.put(toKont.variable(), h);
+        store = store.updateAddresses(toKont.addresses(), h);
         return frame.update(toKont.next(), e, store, toKont.kont());
     }
 }
@@ -81,7 +111,7 @@ record ReturnJump<A>(Instr<A> value) implements Jump<F<A>> {
 record LamJump<A, B>(int variable, Jump<B> next) implements Jump<Fn<A, B>> {
     @Override
     public <R> Frame<R> step(Frame<R> frame, Env env, Store store, Kont<Fn<A, B>, R> kont) {
-        var fnkont = (Kont.PassKont<A, B, R>)kont;
+        var fnkont = (Kont.PassKont<A, B, R>) kont;
         var h = fnkont.value();
         var t = fnkont.kont();
         env = env.put(variable, h);

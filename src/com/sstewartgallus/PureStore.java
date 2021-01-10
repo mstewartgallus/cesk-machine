@@ -1,9 +1,6 @@
 package com.sstewartgallus;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.WeakHashMap;
+import java.util.*;
 
 public record PureStore(PureAddr<?> theLatest, Map<PureAddr<?>, Val<?>> map) implements Store {
     public <A> PureStore allocate(Val<A> h) {
@@ -26,5 +23,13 @@ public record PureStore(PureAddr<?> theLatest, Map<PureAddr<?>, Val<?>> map) imp
         Objects.requireNonNull(addr);
         var val = (Val<A>) map.get(addr);
         return Objects.requireNonNull(val);
+    }
+
+    @Override
+    public <A> Store updateAddresses(List<Addr<A>> addresses, Val<A> h) {
+        if (addresses.isEmpty()) {
+            return this;
+        }
+        throw new RuntimeException("unimplemented");
     }
 }

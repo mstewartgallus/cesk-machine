@@ -31,4 +31,9 @@ public final record PureEnv(Map<Integer, Val<?>> map) implements Env {
     public Env copy() {
         return this;
     }
+
+    @Override
+    public <A> Addr<A> need(SetTag<A> aTag, int needVar) {
+        throw new RuntimeException("unimplemented");
+    }
 }

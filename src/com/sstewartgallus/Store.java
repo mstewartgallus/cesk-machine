@@ -1,5 +1,6 @@
 package com.sstewartgallus;
 
+import java.util.List;
 import java.util.Map;
 
 public interface Store {
@@ -15,4 +16,6 @@ public interface Store {
     <A> Addr<A> latest();
 
     <A> Val<A> get(Addr<A> addr);
+
+    <A> Store updateAddresses(List<Addr<A>> addresses, Val<A> h);
 }

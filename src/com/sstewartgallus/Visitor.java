@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.function.Function;
 
 public final class Visitor {
-    // fixme.. create a stack layout object
+    // fixme.. abstract out interface vs builder?
     private List<SetTag<?>> vars = new ArrayList<>();
+    private List<SetTag<?>> needVars = new ArrayList<>();
 
-    // fixme... consider removing some abstraction
+    // fixme... consider removing some abstraction from builder
 
+    // fixme.. create a stack layout object
     int layout() {
         return vars.size();
     }
@@ -39,6 +41,11 @@ public final class Visitor {
         return Jump.to(body, v, next.apply(Instr.load(v)));
     }
 
+    <A, B> Jump<B> need(SetTag<A> aTag, AlgTag<B> bTag, Jump<F<A>> body, Function<Jump<F<A>>, Jump<B>> next) {
+        var v = needVar(aTag);
+        return Jump.need(aTag, bTag, body, v, next.apply(Jump.exec(aTag, v)));
+    }
+
     <A> Jump<F<A>> ret(SetTag<A> aTag, Instr<A> value) {
         return Jump.ret(value);
     }
@@ -53,6 +60,12 @@ public final class Visitor {
     }
 
     private <A> int var(SetTag<A> aTag) {
+        var len = vars.size();
+        vars.add(aTag);
+        return len;
+    }
+
+    private <A> int needVar(SetTag<A> aTag) {
         var len = vars.size();
         vars.add(aTag);
         return len;

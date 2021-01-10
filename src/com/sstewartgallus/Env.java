@@ -11,6 +11,10 @@ public interface Env {
         return new ImpureEnv(size);
     }
 
+    // fixme... put tags here...
+    <A> Env put(int variable, Val<A> val);
+    Val<?> getVal(int variable);
+
     <A> Env put(int variable, Addr<A> addr);
 
     Addr<?> get(int variable);

@@ -7,7 +7,7 @@ public class Main {
             v.pass(v.lam(x -> v.ret(v.add(v.z(4), x))), v.z(5));
 
     public static void main(String[] args) {
-        var frame = Frame.inject(SAMPLE, false);
+        var frame = Frame.inject(SAMPLE, true);
         Val<Z> haltVal;
         var step = 0;
         for (; ; ++step) {

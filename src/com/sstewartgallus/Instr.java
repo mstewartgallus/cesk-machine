@@ -36,9 +36,7 @@ public interface Instr<A> {
 record LoadInstr<A>(int variable) implements Instr<A> {
     @Override
     public Val<A> eval(Env env, Store store) {
-        Addr<A> addr = (Addr<A>) env.get(variable);
-        var val = store.get(addr);
-        return val;
+        return (Val<A>) env.getVal(variable);
     }
 }
 

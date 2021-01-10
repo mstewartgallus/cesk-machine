@@ -72,10 +72,8 @@ record ReturnJump<A>(Instr<A> value) implements Jump<F<A>> {
 
     private <B, R> Frame<R> stepToKont(Frame<R> frame, Env env, Store store, Kont.ToKont<B, A, R> toKont) {
         Val<A> h = value.eval(env, store);
-        store = store.allocate(h);
-        Addr<A> addr = store.latest();
         var e = toKont.env();
-        e = e.put(toKont.variable(), addr);
+        e = e.put(toKont.variable(), h);
         return frame.update(toKont.next(), e, store, toKont.kont());
     }
 }
@@ -86,9 +84,7 @@ record LamJump<A, B>(int variable, Jump<B> next) implements Jump<Fn<A, B>> {
         var fnkont = (Kont.PassKont<A, B, R>)kont;
         var h = fnkont.value();
         var t = fnkont.kont();
-        store = store.allocate(h);
-        var addr = store.latest();
-        env = env.put(variable, addr);
+        env = env.put(variable, h);
         return frame.update(next, env, store, t);
     }
 }

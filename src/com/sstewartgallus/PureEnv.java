@@ -4,17 +4,27 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
-public final record PureEnv(Map<Integer, Addr<?>> map) implements Env {
-    public <A> PureEnv put(int variable, Addr<A> addr) {
+public final record PureEnv(Map<Integer, Val<?>> map) implements Env {
+    @Override
+    public <A> Env put(int variable, Val<A> val) {
         var newmap = new TreeMap<>(map);
-        newmap.put(variable, addr);
+        newmap.put(variable, val);
         return new PureEnv(newmap);
     }
 
     @Override
+    public Val<?> getVal(int variable) {
+        var val = map.get(variable);
+        return Objects.requireNonNull(val);
+    }
+
+    public <A> PureEnv put(int variable, Addr<A> addr) {
+        throw new RuntimeException("unimplemented");
+    }
+
+    @Override
     public Addr<?> get(int variable) {
-        var addr = map.get(variable);
-        return Objects.requireNonNull(addr);
+        throw new RuntimeException("unimplemented");
     }
 
     @Override
